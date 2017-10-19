@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="PrefilledInputbox.widget.PrefilledInputbox" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
+    <name>Prefilled Inputbox</name>
+    <description>Shows a prefilled inputbox.</description>
+    <icon>
+	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABI0lEQVQ4jdWTrY7C
+	YBBFz2zwFILBNNV9BCQJihfgHTC4r29QBEGhICFIdCU4DAlBYgiG/miKrWhnzW4X
+	NllDMTtyJnNm7p2MqCpV4qNS9zsAYoxJRcT6LUVE+EueqiIiAPcaYPm+/9J0z/Os
+	2mPidDoxm82YTqfsdjvW6zWO49But+n3+xwOB4IgoNVqMZlMgAcPVJXr9UqWZYRh
+	SKfTQUQYDAbs93tUlc1mw3A4xLbtcugTIIoiXNflfD5TFAUAq9UK27ZRVbIso16v
+	0+v1fgBfZqCqJEnC7XbjcrmQ5zkAo9GIOI5LQ9M0ZbvdloDad2E+n9NoNGg2mxyP
+	RxaLBarKeDwuN+h2uyyXy2cnjTH6ahhjVIwxKWC9dEe4y///hcqAT+i0wBqh04jY
+	AAAAAElFTkSuQmCC
+    </icon>
+    <properties>
+        <property key="name" type="attribute" required="true" isPath="optional" pathType="reference">
+            <caption>Attribute</caption>
+            <category>Data source</category>
+            <description>The attribute to display.</description> 
+            <attributeTypes>
+                <attributeType name="String"/>
+				<attributeType name="DateTime"/>
+				<attributeType name="Integer"/>
+				<attributeType name="Long"/>
+				<attributeType name="Float"/>
+				<attributeType name="Currency"/>
+            </attributeTypes>
+        </property>
+		<property key="attrType" type="enumeration" required="true" defaultValue="String">
+            <caption>Attribute type</caption>
+            <category>Data source</category>
+            <description>The attribute type to show. Note that the Number option considers both an empty value and a 0 as empty.
+			Use String if you want it to show 0 instead of the prefill text.</description>
+            <enumerationValues>
+                <enumerationValue key="String">String</enumerationValue>
+                <enumerationValue key="Password">Password</enumerationValue>
+				<enumerationValue key="Number">Number</enumerationValue>
+                <enumerationValue key="Datetime">Datetime</enumerationValue>
+                <enumerationValue key="Date">Date</enumerationValue>
+                <enumerationValue key="Time">Time</enumerationValue>
+            </enumerationValues>    
+        </property>
+        <property key="textareaBool" type="boolean" defaultValue="false">
+            <caption>Text-Area</caption>
+            <category>Appearance</category>
+            <description>Should the input be a text-area.</description> 
+        </property>
+        <property key="minSize" type="integer" defaultValue="5">
+          <caption>Minimum lines</caption>
+          <category>Appearance</category>
+          <description>The minimum amount of lines to display.</description> 
+        </property>
+        <property key="maxSize" type="integer" defaultValue="0">
+          <caption>Maximum lines</caption>
+          <category>Appearance</category>
+          <description>The maximum amount of lines that are to be added, 0 means no maximum.</description> 
+        </property>
+        <property key="leftOffset" type="integer" required="true" defaultValue="5">
+            <caption>Left offset</caption>
+            <category>Appearance</category>
+            <description>The left offset of the prefill text. Use this to make sure the prefill text fits with your styling.</description> 
+        </property>
+        <property key="topOffset" type="integer" required="true" defaultValue="4">
+            <caption>Top offset</caption>
+            <category>Appearance</category>
+            <description>The top offset of the prefill text. Use this to make sure the prefill text fits with your styling.</description> 
+        </property>
+		<property key="prefillText" type="translatableString" required="true">
+            <caption>Prefill string</caption>
+            <category>Data source</category>
+            <description>The string to show in the input box.</description> 
+        </property>
+        <property key="onleavemf" type="microflow" required="false">
+            <caption>On leave microflow</caption>
+            <category>Behavior</category>
+            <description>Optional: The microflow to execute on leave.</description> 
+            <returnType type="Void"/>
+        </property>
+		<property key="escapemf" type="microflow" required="false">
+            <caption>Escape key microflow</caption>
+            <category>Behavior</category>
+            <description>Optional: The microflow to execute when the Escape key is pressed.</description> 
+            <returnType type="Void"/>
+        </property>
+		<property key="entermf" type="microflow" required="false">
+            <caption>Enter key microflow</caption>
+            <category>Behavior</category>
+            <description>Optional: The microflow to execute when the Enter key is pressed.</description> 
+            <returnType type="Void"/>
+        </property>
+		<property key="inputmask" type="string" required="false">
+            <caption>Input mask</caption>
+            <category>Behavior</category>
+            <description>
+			Note your locale when setting the separators. For example, US uses '/', NL uses '-'. Make sure you test this.
+			Format: 'Z' for lower or uppercase.
+			'U' for uppercase.
+			'L' for lowercase.
+			'9' for number.
+			'*' for any case or number.
+			</description>
+		</property>
+		<property key="invalidCause" type="string" required="false">
+            <caption>Invalid warning</caption>
+            <category>Behavior</category>
+            <description>The string to show when an invalid input is entered.</description> 
+        </property>
+        <property key="grabfocus" type="boolean" required="true" defaultValue="false">
+            <caption>Grab focus</caption>
+            <category>Behavior</category>
+            <description>Makes the inputfield grab focus as soon as it is loaded.</description> 
+        </property>
+    </properties>
+</widget>

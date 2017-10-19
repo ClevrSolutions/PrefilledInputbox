@@ -1,0 +1,6 @@
+<div>
+	<div dojoAttachPoint="relativeNode">
+		<input dojoAttachPoint="inputBox" class="mendixFormView_textBox" tabindex="0">
+		<div dojoAttachPoint="inputOverlay"></div>
+	</div>
+</div>
