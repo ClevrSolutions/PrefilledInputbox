@@ -1,16 +1,23 @@
-dojo.provide("PrefilledInputbox.widget.PrefilledInputbox");
+define([
+	"dojo/_base/declare",
+	"mxui/widget/_WidgetBase",
+	"dijit/_TemplatedMixin",
+	"mxui/dom",
+	"dojo/_base/window",
+	"dojo/_base/lang",
+	"dojo/dom-style",
+	"dojo/keys",
+	"dojo/dom-construct",
+	"dojo/dom-geometry",
+	"dojo/_base/fx",
+	"dojo/_base/event",
+	"dojo/text!PrefilledInputbox/widget/ui/PrefilledInputbox.html",
+	"dojo/has",
+	"dojo/sniff"
+], function (declare, _WidgetBase, _TemplatedMixin, dom, win, lang, domStyle, keys, domConstruct, domGeom, fx, event, widgetTemplate, has) {
+	return declare("PrefilledInputbox.widget.PrefilledInputbox", [ _WidgetBase, _TemplatedMixin ], {
+		templateString: widgetTemplate,
 
-mxui.widget.declare('PrefilledInputbox.widget.PrefilledInputbox', {
-	//DECLARATION
-	addons: [
-		dijit._Contained,
-		dijit._Templated,
-        mxui.addon._Scriptable
-	],
-
-	templateString: dojo.cache("PrefilledInputbox", "widget/ui/PrefilledInputbox.html"),
-
-    inputargs: {
 		name		: '',
 		prefillText	: '',
 		textareaBool : false,
@@ -25,8 +32,8 @@ mxui.widget.declare('PrefilledInputbox.widget.PrefilledInputbox', {
 		invalidCause : '',
 		leftOffset	: 5,
 		topOffset	: 4,
-        tabindex : 0
-    },
+        tabindex : 0,
+
 	
 	//CACHES
 	_hasStarted		: null,
@@ -36,41 +43,40 @@ mxui.widget.declare('PrefilledInputbox.widget.PrefilledInputbox', {
 	realMask		: null,
 	eventsList		: null,
 	isInactive      : false,
-	secretTA 		: dojo.body().appendChild(mxui.dom.div({
-		'class' : 'secretTA',
-		'style' : 'left: -5000px; overflow: auto; top: -5000px; height: auto; position: absolute; word-wrap: break-word; white-space: pre-wrap',
-		'tabIndex' : '-1'
-	})),
+	secretTA 		: false,
 	
-	startup : function(){
+	postCreate : function(){
+		secretTA = win.body().appendChild(dom.create("div",{
+			'class': 'secretTA',
+			'style': 'left: -5000px; overflow: auto; top: -5000px; height: auto; position: absolute; word-wrap: break-word; white-space: pre-wrap',
+			'tabIndex': '-1'
+		}));
 		if (this._hasStarted)
 			return;
 		
 		this._hasStarted = true;
-        this.offerInterface("close");
+        // this.offerInterface("close");
 		this.eventsList = [];
 
 		this.renderInputbox();
-
-		this.actLoaded();
 	},
     update : function(obj, callback){
-        this.contextGUID = obj.getGUID();
+        this.contextGUID = obj.getGuid();
         this.mxobj = obj;
 
         this._handle = mx.data.subscribe({
             guid: this.mxobj.getGuid(),
-            callback: dojo.hitch(this, function(obj){
+            callback: lang.hitch(this, function(obj){
                 var value = this.mxobj.get(this.name);
                 this.inputBox.value = value;
                                 
-                if ((value == "" || !value || value == 0) && (!dojo.isIE || dojo.isIE > 7)) {
-                    dojo.style(this.inputOverlay, {
+                if ((value == "" || !value || value == 0) && (!has("ie") || has("ie") > 7)) {
+                    domStyle.set(this.inputOverlay, {
                         'opacity' :  0.3,
                         'display' : 'block'
                     });
                 } else {
-                    dojo.style(this.inputOverlay, {
+                    domStyle.set(this.inputOverlay, {
                         'opacity' :  0,
                         'display' : 'none'
                     });
@@ -83,21 +89,21 @@ mxui.widget.declare('PrefilledInputbox.widget.PrefilledInputbox', {
 	renderInputbox : function(value) {
 		this.inputBox.tabIndex = this.tabindex;
 		if (this.attrType == "Password") {
-			dojo.destroy(this.inputBox);
-			this.inputBox = mxui.dom.input({'class' : "mendixFormView_textBox", 'tabIndex': this.tabindex, 'type' : 'password'});
-			dojo.place(this.inputBox, this.relativeNode, 'first');
+			domConstruct.destroy(this.inputBox);
+			this.inputBox = dom.create("input",{'class' : "mendixFormView_textBox", 'tabIndex': this.tabindex, 'type' : 'password'});
+			domConstruct.place(this.inputBox, this.relativeNode, 'first');
 		} else if (this.textareaBool) {
-			dojo.destroy(this.inputBox);
+			domConstruct.destroy(this.inputBox);
 			this.createTextArea();
 		}
 		
 		this.connect(this.inputBox,'onchange', this.onChange);
-		dojo.style(this.domNode, {
+		domStyle.set(this.domNode, {
 			'width' : '100%'
 		});
 
-		dojo.style(this.relativeNode, 'position', 'relative');
-		dojo.style(this.inputOverlay, {
+		domStyle.set(this.relativeNode, 'position', 'relative');
+		domStyle.set(this.inputOverlay, {
 			'position'		: 'absolute',
 			'top'			: this.topOffset+'px',
 			'left'			: this.leftOffset+'px',
@@ -108,7 +114,7 @@ mxui.widget.declare('PrefilledInputbox.widget.PrefilledInputbox', {
 			'-khtml-user-select' : 'none'
 		});
 
-		this.connect(this.inputOverlay, 'onclick', dojo.hitch(this, function(e) {
+		this.connect(this.inputOverlay, 'onclick', lang.hitch(this, function(e) {
 			this.inputOverlay.blur();
 			this.inputBox.focus();
 		}));
@@ -119,20 +125,20 @@ mxui.widget.declare('PrefilledInputbox.widget.PrefilledInputbox', {
 		
 		this.inputBox.value = value || '';
 		
-		if ((value == "" || !value || value == 0) && (!dojo.isIE || dojo.isIE > 7)) {
-			dojo.style(this.inputOverlay, {
+		if ((value == "" || !value || value == 0) && (!has("ie") || has("ie") > 7)) {
+			domStyle.set(this.inputOverlay, {
 				'opacity' :  0.3,
 				'display' : 'block'
 			});
 		} else {
-			dojo.style(this.inputOverlay, {
+			domStyle.set(this.inputOverlay, {
 				'opacity' :  0,
 				'display' : 'none'
 			});
 		}
 		
 		this.addEvents();
-		mxui.dom.applyEnableStyle(this.inputBox);
+		// mxui.dom.applyEnableStyle(this.inputBox);
 
 		if (this.grabfocus)
             mxui.wm.focus.put(this.inputBox);
@@ -142,52 +148,52 @@ mxui.widget.declare('PrefilledInputbox.widget.PrefilledInputbox', {
 	createTextArea : function() {
 		this.inputBox = mxui.dom.textarea({'class' : "mendixFormView_textBox", 'tabIndex': this.tabindex, 'rows' : this.minSize})
 		
-		dojo.style(this.inputBox, {
+		domStyle.set(this.inputBox, {
 			'overflow' : 'hidden',
 			'wordWrap' : 'break-word'
 		});
-		dojo.place(this.inputBox, this.relativeNode, 'first');
-		this.lineSize = parseInt(dojo.style(this.inputBox, 'lineHeight'), 10) || 15;
-		this.base = dojo.style(this.inputBox, 'paddingTop')
-				  + dojo.style(this.inputBox, 'paddingBottom')
-				  + dojo.style(this.inputBox, 'borderTopWidth')
-				  + dojo.style(this.inputBox, 'borderBottomWidth');
+		domConstruct.place(this.inputBox, this.relativeNode, 'first');
+		this.lineSize = parseInt(domstyle.get(this.inputBox, 'lineHeight'), 10) || 15;
+		this.base = domStyle.get(this.inputBox, 'paddingTop')
+				  + domStyle.get(this.inputBox, 'paddingBottom')
+				  + domStyle.get(this.inputBox, 'borderTopWidth')
+				  + domStyle.get(this.inputBox, 'borderBottomWidth');
 	},
 	getHeight : function () {
-		if (dojo.marginBox(this.inputBox).w == 0)
+		if (domGeom.getMarginBox(this.inputBox).w == 0)
 			return;
 		
-		dojo.style(this.secretTA, {
-			'width' :  dojo.marginBox(this.inputBox).w+'px',
-			'padding' : dojo.style(this.inputBox, 'padding'),
-			'fontSize' : dojo.style(this.inputBox, 'fontSize'),
-			'fontFamily' : dojo.style(this.inputBox, 'fontFamily'),
-			'fontWeight' : dojo.style(this.inputBox, 'fontWeight'),
-			'lineHeight' : (dojo.style(this.inputBox, 'lineHeight') || 15)+'px',
-			'textAlign' : dojo.style(this.inputBox, 'textAlign')
+			domStyle.set(this.secretTA, {
+			'width' :  domGeom.getMarginBox(this.inputBox).w+'px',
+			'padding' : domStyle.get(this.inputBox, 'padding'),
+			'fontSize' : domStyle.get(this.inputBox, 'fontSize'),
+			'fontFamily' : domStyle.get(this.inputBox, 'fontFamily'),
+			'fontWeight' : domStyle.get(this.inputBox, 'fontWeight'),
+			'lineHeight' : (domStyle.get(this.inputBox, 'lineHeight') || 15)+'px',
+			'textAlign' : domStyle.get(this.inputBox, 'textAlign')
 		});
 		var secretText = this.inputBox.value.replace(/\n/gi, "<br />");
 		this.secretTA.innerHTML = secretText+"<br />";
-		dojo.style(this.secretTA, 'height', 'auto');
+		domStyle.set(this.secretTA, 'height', 'auto');
 		
-		var placeholder = dojo.marginBox(this.secretTA).h; // Chrome bug with first read.
-		var secretHeight = dojo.marginBox(this.secretTA).h;
+		var placeholder = domGeom.getMarginBox(this.secretTA).h; // Chrome bug with first read.
+		var secretHeight = domGeom.getMarginBox(this.secretTA).h;
 		var newH = secretHeight+this.base;
 		var min = (this.minSize*this.lineSize)+this.base;
 		var max = (this.maxSize*this.lineSize)+this.base;
 		
 		if (newH < min) {
-			dojo.style(this.inputBox, {
+			domStyle.set(this.inputBox, {
 				'height' : min+'px',
 				'overflow' : 'hidden'
 			});
 		} else if (this.maxSize > 0 && newH > max) {
-			dojo.style(this.inputBox, {
+			domStyle.set(this.inputBox, {
 				'height' : max+'px',
 				'overflow' : 'auto'
 			});
 		} else {
-			dojo.style(this.inputBox, {
+			domStyle.set(this.inputBox, {
 				'height' : newH+'px',
 				'overflow' : 'hidden'
 			});
@@ -210,21 +216,21 @@ mxui.widget.declare('PrefilledInputbox.widget.PrefilledInputbox', {
 			this.getHeight();
 		}
 		if (this.inputBox.value == '') {
-			this.overlayEvt = dojo.animateProperty({
+			this.overlayEvt = fx.animateProperty({
 				node : this.inputOverlay,
 				properties : {
 					'opacity' : 0.3
 				},
-				onBegin : dojo.hitch(this, function() {
-					if (!dojo.isIE || dojo.isIE > 7)
-						dojo.style(this.inputOverlay, 'display', 'block');
+				onBegin : lang.hitch(this, function() {
+					if (!has("ie") || has("ie") > 7)
+						domStyle.set(this.inputOverlay, 'display', 'block');
 				})
 			});
 			this.overlayEvt.play();
 		} else {
 			this.overlayEvt && this.overlayEvt.stop();
-			dojo.style(this.inputOverlay, 'opacity', 0);
-			dojo.style(this.inputOverlay, 'display', 'none');
+			domStyle.set(this.inputOverlay, 'opacity', 0);
+			domStyle.set(this.inputOverlay, 'display', 'none');
 		}
 	},
 	keyPressEvt : function (e) {
@@ -233,26 +239,29 @@ mxui.widget.declare('PrefilledInputbox.widget.PrefilledInputbox', {
 		}
 		if (this.inputBox.value != '') {
 			this.overlayEvt && this.overlayEvt.stop();
-			dojo.style(this.inputOverlay, 'opacity', 0);
-			dojo.style(this.inputOverlay, 'display', 'none');
+			domStyle.set(this.inputOverlay, 'opacity', 0);
+			domStyle.set(this.inputOverlay, 'display', 'none');
 		}
 		
 		switch(e.keyCode) {
-			case dojo.keys.ESCAPE :
+			case keys.ESCAPE :
 				if (this.escapemf != '') {
                     this.mxobj.set(this.name, this.inputBox.value);
-                    this.mxobj.save({ callback : function () {}});
+                    mx.data.commit({
+						mxobj: this.mxobj,
+						callback : function () {}
+					});
 	                
                     this.inputBox.blur();
 	                this.executeMF(this.escapemf);
-	                dojo.stopEvent(e);
+	                event.stop(e);
 				}
                 break;
-			case dojo.keys.ENTER :
+			case keys.ENTER :
 				if (this.entermf != '') {
 	                this.inputBox.blur();
 	                this.executeMF(this.entermf);
-	                dojo.stopEvent(e);
+	                event.stop(e);
 				}
                 break;
             default :
@@ -261,15 +270,13 @@ mxui.widget.declare('PrefilledInputbox.widget.PrefilledInputbox', {
 	},
 	executeMF : function (mf) {
 		if (mf) {
-            mx.processor.xasAction({
-                error       : function() {
-                    logger.error("PrefilledInputbox.widget.PrefilledInputbox.triggerMicroFlow: XAS error executing microflow")
+			mx.ui.action(mf, {
+				context: new mendix.lib.MxContext(),
+				callback: function() {},
+				error : function() {
+                    mx.ui.error(this.id + ": error executing microflow")
                 },
-                actionname  : mf,
-                caller      : this,
-                applyto     : 'selection',
-                guids       : [this.contextGUID]
-            });
+			});
 		}
 	},
 	
@@ -320,9 +327,9 @@ mxui.widget.declare('PrefilledInputbox.widget.PrefilledInputbox', {
 			}
 			*/
 		} else {
-			mxui.dom.applyEnableStyle(this.domNode);
+			// mxui.dom.applyEnableStyle(this.domNode);
 			if (this.inputBox)
-				mxui.dom.applyEnableStyle(this.inputBox);
+				// mxui.dom.applyEnableStyle(this.inputBox);
 			
 			this.isInactive = false;
 			
@@ -346,4 +353,9 @@ mxui.widget.declare('PrefilledInputbox.widget.PrefilledInputbox', {
     close : function() {
         this.disposeContent();   
     }
+	});
+});
+
+require(["PrefilledInputbox/widget/PrefilledInputbox"], function() {
+    "use strict";
 });
